@@ -1,0 +1,16 @@
+# Copiar este archivo como application.properties y completar las credenciales reales.
+# application.properties esta en .gitignore para no versionar credenciales.
+spring.application.name=expresofast
+
+spring.datasource.url=jdbc:sqlserver://localhost:1433;databaseName=ExpresoFast;encrypt=true;trustServerCertificate=true
+spring.datasource.username=TU_USUARIO
+spring.datasource.password=TU_CONTRASENA
+spring.datasource.driver-class-name=com.microsoft.sqlserver.jdbc.SQLServerDriver
+
+spring.jpa.hibernate.ddl-auto=none
+spring.jpa.show-sql=true
+spring.jpa.open-in-view=false
+
+# Clave HMAC en Base64 (minimo 256 bits). Generar una propia, por ejemplo: openssl rand -base64 32
+jwt.secret=REEMPLAZAR_POR_UNA_CLAVE_BASE64_DE_AL_MENOS_32_BYTES
+jwt.expiration-ms=3600000

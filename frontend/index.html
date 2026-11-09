@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ExpresoFast · Tablero</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+    <script src="auth.js"></script>
+    <script>
+        exigirSesion();
+    </script>
+
+    <header class="topbar">
+        <div class="brand">
+            <span class="brand__mark">ExpresoFast</span>
+            <span class="brand__tag"> - seguimiento de envíos</span>
+        </div>
+        <div class="topbar__stats" id="statsResumen" aria-live="polite">
+            <span class="stat-chip">Pendiente <strong id="countPendiente">0</strong></span>
+            <span class="stat-chip">En tránsito <strong id="countTransito">0</strong></span>
+            <span class="stat-chip">Entregado <strong id="countEntregado">0</strong></span>
+        </div>
+        <div class="topbar__user">
+            <span class="topbar__username" id="nombreUsuarioActual">—</span>
+            <span class="role-badge" id="rolUsuarioActual">—</span>
+            <button class="btn-logout" id="btnLogout" type="button">Cerrar sesión</button>
+        </div>
+    </header>
+
+    <div class="layout">
+
+        <aside class="sidebar">
+            <nav class="vista-tabs" aria-label="Vista principal" id="vistaTabs">
+                <button class="vista-tab is-active" data-vista="envios" type="button">Envíos</button>
+                <button class="vista-tab" data-vista="flota" type="button" id="tabFlota" hidden>Flota</button>
+            </nav>
+
+            <nav class="filtros" aria-label="Filtros de estado de envío" id="panelFiltros">
+                <h2 class="sidebar__title">Filtrar por estado</h2>
+                <button class="filtro-tab is-active" data-filtro="TODOS" type="button">Todos</button>
+                <button class="filtro-tab" data-filtro="PENDIENTE" type="button">Pendiente</button>
+                <button class="filtro-tab" data-filtro="EN_TRANSITO" type="button">En tránsito</button>
+                <button class="filtro-tab" data-filtro="ENTREGADO" type="button">Entregado</button>
+                <button class="filtro-tab" data-filtro="CANCELADO" type="button">Cancelado</button>
+            </nav>
+
+            <section class="intake" aria-labelledby="intakeTitulo" id="panelIntake">
+                <h2 class="sidebar__title" id="intakeTitulo">Registrar envío</h2>
+                <form id="formEnvio" class="form-envio" novalidate>
+                    <label for="codigoRastreo">Código de rastreo</label>
+                    <input type="text" id="codigoRastreo" name="codigoRastreo" placeholder="EXP-1234" pattern="EXP-\d{4}"
+                        required>
+
+                    <label for="direccionDestino">Dirección destino</label>
+                    <input type="text" id="direccionDestino" name="direccionDestino" placeholder="Cartago"
+                        required>
+
+                    <div class="form-row">
+                        <div>
+                            <label for="pesoKg">Peso (kg)</label>
+                            <input type="number" id="pesoKg" name="pesoKg" step="0.01" min="0.01" required>
+                        </div>
+                        <div>
+                            <label for="costo">Costo (₡)</label>
+                            <input type="number" id="costo" name="costo" step="0.01" min="0.01" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div>
+                            <label for="vehiculoId">ID vehículo</label>
+                            <input type="number" id="vehiculoId" name="vehiculoId" min="1" required>
+                        </div>
+                        <div>
+                            <label for="conductorId">ID conductor</label>
+                            <input type="number" id="conductorId" name="conductorId" min="1" required>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-primary">Registrar envío</button>
+                    <p class="form-feedback" id="formFeedback" role="status"></p>
+                </form>
+            </section>
+        </aside>
+
+        <main class="board">
+            <section id="vistaEnvios">
+                <section class="board__header">
+                    <h1>Envíos activos</h1>
+                    <p id="boardSubtitulo">Cargando manifiesto de envíos…</p>
+                </section>
+
+                <section class="board__grid" id="gridEnvios" aria-live="polite">
+                </section>
+            </section>
+
+            <section id="vistaFlota" hidden>
+                <section class="board__header">
+                    <h1>Gestión de flota</h1>
+                    <p>Alta, edición y baja de vehículos (solo ROLE_ADMIN).</p>
+                </section>
+
+                <form id="formVehiculo" class="form-vehiculo" novalidate>
+                    <div class="form-row">
+                        <div>
+                            <label for="vehPlaca">Placa</label>
+                            <input type="text" id="vehPlaca" name="vehPlaca" placeholder="CL-123456" required>
+                        </div>
+                        <div>
+                            <label for="vehCapacidad">Capacidad (kg)</label>
+                            <input type="number" id="vehCapacidad" name="vehCapacidad" step="0.01" min="0.01" required>
+                        </div>
+                        <div>
+                            <label for="vehEstado">Estado</label>
+                            <select id="vehEstado" name="vehEstado" required>
+                                <option value="DISPONIBLE">Disponible</option>
+                                <option value="EN_RUTA">En ruta</option>
+                                <option value="MANTENIMIENTO">Mantenimiento</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="vehEmpresaId">ID empresa</label>
+                            <input type="number" id="vehEmpresaId" name="vehEmpresaId" min="1" required>
+                        </div>
+                        <div class="form-row__accion">
+                            <button type="submit" class="btn-primary" id="btnGuardarVehiculo">Agregar vehículo</button>
+                        </div>
+                    </div>
+                    <p class="form-feedback" id="vehiculoFeedback" role="status"></p>
+                </form>
+
+                <table class="tabla-flota">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Placa</th>
+                            <th>Capacidad (kg)</th>
+                            <th>Estado</th>
+                            <th>Empresa</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaFlotaBody"></tbody>
+                </table>
+            </section>
+        </main>
+
+    </div>
+
+    <!-- Modal de Bitácora de Auditoría -->
+    <div class="modal-overlay" id="modalBitacora" hidden>
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalBitacoraTitulo">
+            <div class="modal__header">
+                <h2 id="modalBitacoraTitulo">Bitácora de auditoría — <span id="modalCodigoEnvio"></span></h2>
+                <button class="modal__close" id="btnCerrarModal" type="button" aria-label="Cerrar">&times;</button>
+            </div>
+
+            <div class="modal__filtros">
+                <label>Desde
+                    <input type="date" id="filtroFechaInicio">
+                </label>
+                <label>Hasta
+                    <input type="date" id="filtroFechaFin">
+                </label>
+                <button type="button" class="btn-accion" id="btnLimpiarFiltroFechas">Limpiar filtro</button>
+            </div>
+
+            <div class="modal__body" id="modalBitacoraBody">
+                <p class="board__empty">Cargando historial…</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
